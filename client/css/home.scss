@@ -3,13 +3,37 @@ body {
     height: 100%;
 }
 
-#navbar {
-    ul {
-        list-style-type: none;
-        display: inline-block;
-    }
+#appDiv {
+  width: 100%;
+  height: 100%;
+}
+
+#myNav {
+
 }
 
 #content {
+  background-color: #eee;
+  height: 600px;
+  width: 100%;
+}
 
+.login {
+    margin: 86px auto 0 auto;
+    text-align: center;
+}
+
+#login-btn {
+    width: 225px;
+    padding: 7px 5px;
+}
+
+.btn p {
+    margin: 8px 0 0 0;
+    padding: 0;
+}
+
+.btn > img {
+    float: left;
+    margin-left: 10px;
 }

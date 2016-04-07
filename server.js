@@ -5,16 +5,22 @@ var express = require("express");
 var mongoose = require("mongoose");
 var passport = require("passport");
 var session = require("express-session");
+var routes = require("./app/routes/index.js");
 
 var app = express();
 var server = http.createServer(app);
+
 require("dotenv").load();
 require("./app/config/passport")(passport);
 
-app.use(express.static(process.cwd() + "/client"));
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+mongoose.connect(process.env.MONGO_URI);
+
+app.use("/client", express.static(process.cwd() + "/client"));
 app.use("/components", express.static(process.cwd() + "/app/components"));
-app.use("/public", express.static(process.cwd() + "/public"));
-app.use("/common", express.static(process.cwd() + "/app/common"));
 
 app.use(session({
 	secret: 'secretClementine',
