@@ -32,7 +32,7 @@ class Poll extends React.Component {
   userVote() {
 
   }
-
+  // Add input field?
   addOption() {
 
   }
