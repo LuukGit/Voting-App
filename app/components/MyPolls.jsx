@@ -10,10 +10,9 @@ class MyPolls extends React.Component {
   }
 
   componentDidMount() {
-    ajax('GET', "/api/user/:id", "", function(data){
-      console.log(data);
-      if (data != 'no user'){
-        var user = JSON.parse(data);
+    ajax('GET', "/api/user/:id", "", function(user){
+      user = JSON.parse(user);
+      if (user.github.username != ""){
         this.setState({ user: user });
         this.setState({ polls: user.polls })
       }
@@ -26,16 +25,16 @@ class MyPolls extends React.Component {
         var polls = <p>You have no polls yet.<Link to="/newpoll">Click here to add a new Poll!</Link></p>;
         if (this.state.polls.length > 0) {
           polls = this.state.polls.map(function(data) {
-            var target = "/poll/" + data.title;
-            return <li key={data.title}><Link to={target}>{data.title}</Link></li>;
+            var target = "/poll/" + data._id;
+            return <Link to={target}><div className="text-center poll" key={data._id}>{data.title}</div></Link>;
           }.bind(this));
         }
 
         return(
-          <div className="container text-center" id="myPolls">
-            <ul id="pollList">
+          <div id="mypolls">
+            <div id="pollList">
               {polls}
-            </ul>
+            </div>
          </div>
         );
     }

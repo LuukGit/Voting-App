@@ -1,72 +1,134 @@
 import React from "react";
-import PollResult from "./PollResult.jsx";
+import BarChart from "./BarChart.jsx";
 import ajax from "../common/ajax-functions.js";
 
 // Split the div in two, with the voting in the left side, results on the right side.
 class Poll extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = { user: undefined, poll: undefined, response: false};
+    this.state = { user: undefined, poll: undefined, response: false, alreadyvoted: false, addOptionTitle: "", addOption: false};
+    this.setSelectVote = this.setSelectVote.bind(this);
     context.router;
   }
 
   componentDidMount() {
-    ajax("GET", "/api/user/:id", "", function(data) {
-      if (data !== "no user") {
-        this.setState({user: JSON.parse(data)});
+    ajax("GET", "/api/user/:id", "", function(user) {
+      user = JSON.parse(user);
+      this.setState({user: user});
+      ajax("GET", "/api/poll/" + this.props.params.id, "", function(poll) {
+        if (poll !== "no poll") {
+          poll = JSON.parse(poll);
+          this.setState({poll: poll});
+          if (poll.voters.indexOf(user.github.id) > -1) {
+            this.setState({alreadyVoted: true});
+          }
+        }
+        this.setState({response: true});
+      }.bind(this));
+    }.bind(this));
+  }
+
+  submitVote(vote) {
+    ajax("POST", "/api/poll/" + this.state.poll._id, JSON.stringify( {user: this.state.user, poll: this.state.poll, vote: vote }), function(data) {
+      if(data === "duplicate") {
+        alert("You supplied a duplicate vote option. Please try again.");
       }
       else {
-        this.setState({user: "guest"});
+        this.setState({ poll: JSON.parse(data) });
+        this.setState({ alreadyVoted: true });
       }
-    }.bind(this));
-    ajax("GET", "/api/poll/" + this.props.params.title, "", function(data) {
-      if (data !== "no poll") {
-        this.setState({poll: JSON.parse(data)});
-      }
-      this.setState({response: true});
-    }.bind(this));
+      this.setState({ addOptionTitle: "" });
+    }.bind(this))
   }
 
-  // Post zowel userVote() als addOption() naar addVoteToPoll. Kijk binnen addVoteToPoll of de option al bestaat,
-  // anders initialiseer met vote count 1.
-  userVote() {
-
+  handleVote(e) {
+    e.preventDefault();
+    // If the vote adds a new option
+    var vote = "";
+    if (this.state.addOption) {
+      vote = this.state.addOptionTitle;
+    }
+    // If the option already existed check which option was selected.
+    else {
+      var options = this.state.poll.options;
+      for (var i = 0; i < options.length; i++) {
+        if (document.getElementById(options[i]).checked) {
+          vote = options[i];
+          break;
+        }
+      }
+    }
+    // Submit the vote if it has a valid input.
+    if (vote !== "") {
+      this.submitVote(vote);
+      // Reset the radio buttons
+      for (var j = 0; j < options.length; j++) {
+        document.getElementById(options[j]).checked = false;
+      }
+    }
   }
-  // Add input field?
-  addOption() {
 
+  handleOptionButton() {
+    this.setState({ addOption: document.getElementById("addOption").checked });
+  }
+
+  handleAddOptionText(event) {
+    this.setState({ addOptionTitle: event.target.value});
   }
 
   deletePoll() {
-    ajax('DELETE', "/api/poll/" + this.props.params.title, "", function(){
+    ajax('DELETE', "/api/poll/" + this.state.poll._id, "", function(){
       this.setState({ poll: undefined });
-      console.log(this.context.router);
       this.context.router.push("/mypolls");
     }.bind(this))
   }
 
+  setSelectVote(options, addOption, deleteButton) {
+    return  <div><div id="poll-options">
+              <form>
+                {options}
+                  <label>
+                  <input type="radio" name="option" id="addOption" onChange={this.handleOptionButton.bind(this)} value="addOption"></input>
+                  Other, 
+                  </label>
+              </form>
+              {addOption}
+            </div>
+            <div id="poll-buttons">
+              <button onClick={this.handleVote.bind(this)}>Vote</button>
+              {deleteButton}
+            </div></div>;
+  }
+
   render() {
+    var addOption = <div></div>;
+    var deleteButton = <div></div>;
+    var content = <div></div>;
     if (this.state.response) {
       if (this.state.poll) {
-        var deleteButton = <div></div>;
-        if (this.state.user.github) {
-          if (this.state.user.github.id === this.state.poll.owner) {
-            deleteButton = <button className="btn btn-danger" id="delete-btn" onClick={this.deletePoll.bind(this)}>Delete</button>
-          }
+        var options = this.state.poll.options.map(function(option) {
+          return <label>
+              <input type="radio" name="option" id={option} onChange={this.handleOptionButton.bind(this)} value={option}></input>
+              {option}
+            </label>;
+        }.bind(this));
+        if (this.state.user.github.id === this.state.poll.owner) {
+          deleteButton = <button onClick={this.deletePoll.bind(this)}>Delete Poll</button>
         }
+        if (this.state.addOption) {
+          addOption = <div id="add-option-form"><form onSubmit={this.handleVote.bind(this)}><input type="text" placeholder="Enter the title" value={this.state.addOptionTitle} onChange={this.handleAddOptionText.bind(this)} id="addOptionTitle"></input></form></div>;
+        }
+        if (this.state.alreadyVoted) {
+          content = <BarChart data={this.state.poll.results} />;
+        }
+        else {
+          content = this.setSelectVote(options, addOption, deleteButton);
+        }
+
         return(
           <div id="poll">
-            <div className="row">
-              <div className="col-md-4" id="pollIndex">
-                Title: <p>{this.state.poll.title}</p>
-
-                <button className="btn btn-primary" id="vote-btn" onClick={this.userVote.bind(this)}>Vote</button>
-                {deleteButton}
-              </div>
-              <div className="col-md-8" id="pollResult">
-                <PollResult />
-              </div>
-            </div>
+                <h3 className="text-center">{this.state.poll.title}</h3>
+                {content}
           </div>
         );
       }
@@ -85,7 +147,7 @@ class Poll extends React.Component {
 }
 
 Poll.contextTypes = {
-  router: React.PropTypes.func.isRequired
+  router: function() {return React.PropTypes.func.isRequired;}
 };
 
 module.exports = Poll;

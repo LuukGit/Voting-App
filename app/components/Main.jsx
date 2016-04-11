@@ -7,7 +7,7 @@ class Main extends React.Component {
     return (
       <div className="container">
         <GlobalNav user={this.props.route.user}/>
-        <div id="content">
+        <div id="content" className="container">
           {this.props.children}
         </div>
       </div>

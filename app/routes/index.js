@@ -8,6 +8,7 @@ module.exports = function(app, passport) {
 		.get(function (req, res) {
 				res.sendFile(path + '/client/index.html');
 		});
+
 	app.route('/login')
 		.get(function (req, res) {
 				res.sendFile(path + '/client/index.html');
@@ -40,12 +41,12 @@ module.exports = function(app, passport) {
 			res.sendFile(path + "/client/index.html");
 		});
 
-	app.route("/poll/:title")
+	app.route("/poll/:id")
 		.get(function(req, res) {
 			res.sendFile(path + "/client/index.html");
 		});
 
-	app.route('/api/poll/:title')
+	app.route('/api/poll/:id')
 		.get(requestHandler.getPoll)
 		.post(requestHandler.addVoteToPoll)
 		.delete(requestHandler.deletePoll);
@@ -56,7 +57,13 @@ module.exports = function(app, passport) {
 						res.json(req.user);
 				}
 				else {
-						res.send('no user');
+						// Create temp identity based on IP address that can be used to vote and check poll results.
+						var user = {};
+						user.github = {};
+						user.github.username = ""; // Use this to check if this is no logged in user.
+						user.github.id = req.headers['x-forwarded-for'] || req.connection.remoteAddress ||
+						                          req.socket.remoteAddress || req.connection.socket.remoteAddress;
+						res.json(user);
 				}
 		});
 
@@ -65,4 +72,9 @@ module.exports = function(app, passport) {
       successRedirect: '/',
       failureRedirect: '/login'
     }));
+
+	app.route("/*")
+		.get(function (req, res) {
+				res.redirect("/");
+		});
 }

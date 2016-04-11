@@ -8,10 +8,10 @@ class Profile extends React.Component {
   }
 
   componentDidMount() {
-    ajax('GET', "/api/user/:id", "", function(data){
-      console.log(data);
-      if (data != 'no user'){
-        this.setState({ user: JSON.parse(data) })
+    ajax('GET', "/api/user/:id", "", function(user){
+      user = JSON.parse(user);
+      if (user.github.username != ""){
+        this.setState({ user: user})
       }
       this.setState({ response: true })
     }.bind(this))
@@ -19,20 +19,23 @@ class Profile extends React.Component {
 
   render() {
     if (this.state.response) {
+      var link = "https://github.com/" + this.state.user.github.username;
         return(
-          <div className="container">
-            <div id="user">
-              <p>Display Name: {this.state.user.github.displayName}</p>
-              <p>ID: {this.state.user.github.id}</p>
-              <p>Username: {this.state.user.github.username}</p>
-              <p>Polls: {this.state.user.polls.length}</p>
+          <div id="profile">
+            <div id="profile-info">
+              <div id="profile-img"><img src="../client/img/gh-mark-32px.png" /></div>
+              <ul>
+                <li><span><strong>ID:</strong></span><span>&nbsp;{this.state.user.github.id}</span></li>
+                <li><span><strong>Username:</strong></span><span>&nbsp;{this.state.user.github.username}</span></li>
+                <li><span><strong>Display Name:</strong></span><span>&nbsp;{this.state.user.github.displayName}</span></li>
+                <li><span><strong>Polls:</strong></span><span>&nbsp;{this.state.user.polls.length}</span></li>
+              </ul>
+              <div id="profile-buttons">
+                <a href={link}><button>Github</button></a>
+                <a href="/logout"><button>Logout</button></a>
+              </div>
             </div>
-            <div id="logout">
-              <a href="/logout">
-                logout
-              </a>
-            </div>
-          </div>
+         </div>
         );
     }
     else {

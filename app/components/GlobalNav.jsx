@@ -26,7 +26,7 @@ class GlobalNav extends React.Component {
               <Link to="/mypolls">My Polls</Link>
             </li>
             <li>
-              <Link to="/newpoll">New Polls</Link>
+              <Link to="/newpoll">New Poll</Link>
             </li>
             {log}
           </ul>

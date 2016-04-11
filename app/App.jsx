@@ -17,10 +17,10 @@ class App extends React.Component {
 
   componentDidMount() {
     if(!this.state.user){
-      ajax('GET', "/api/user/:id", "", function(data){
-        console.log(data);
-        if (data != 'no user'){
-          this.setState({ user: JSON.parse(data) })
+      ajax('GET', "/api/user/:id", "", function(user){
+        user = JSON.parse(user);
+        if (user.github.username != ""){
+          this.setState({ user: user })
         }
         this.setState({ response: true })
       }.bind(this))
@@ -28,7 +28,6 @@ class App extends React.Component {
   }
 
   requireLogin(nextState, replaceState) {
-    console.log("login_check");
     if (!this.state.user) {
       replaceState({ nextPathname: nextState.location.pathname }, '/login');
     }
@@ -43,7 +42,7 @@ class App extends React.Component {
               <Route path="/mypolls" onEnter={this.requireLogin.bind(this)} component={MyPolls}/>
               <Route path="/profile" onEnter={this.requireLogin.bind(this)} component={Profile}/>
               <Route path="/newpoll" onEnter={this.requireLogin.bind(this)} component={NewPoll}/>
-              <Route path="/poll/:title" component={Poll} />
+              <Route path="/poll/:id" component={Poll} />
               <Route path="/login" component={Login} />
             </Route>
           </Router>

@@ -23,28 +23,45 @@ class NewPoll extends React.Component {
           return;
       }
       var options = this.state.options.split(",").map(function(item) {
-          return item.trim();
+            return item.trim();
+      }).filter(function(item) {
+          return (item !== " " && item !== "");
       });
-      ajax("POST", "/newpoll", JSON.stringify({title: title, options: options}), function(data) {
-        if (data === "duplicate poll") {
-          alert("A poll with this name already exists!");
+      // Check for duplicates
+      var duplicates = false;
+      var arr = options.slice().map(function(item) {
+        var newItem = "" + item;
+        newItem = newItem.toLowerCase();
+        return newItem;
+      });
+      arr = arr.sort();
+      for (var i = 0; i < arr.length - 1; i++) {
+        if (arr[i] === arr[i+1]){
+          duplicates = true;
         }
-        else {
-          document.getElementById("title").value = "";
-          document.getElementById("options").value = "";
-          this.setState({title: "", options: ""});
-          this.context.router.push("/poll/" + title);
-        }
-      }.bind(this));
+      }
+      // Post the new poll to the database and move the page to the users MyPolls page.
+      if (!duplicates) {
+        ajax("POST", "/newpoll", JSON.stringify({title: title, options: options}), function(data) {
+            document.getElementById("title").value = "";
+            document.getElementById("options").value = "";
+            this.setState({title: "", options: ""});
+            this.context.router.push("/poll/" + JSON.parse(data));
+        }.bind(this));
+      }
+      else {
+        alert("Please remove the duplicate value(s).");
+      }
   }
 
   render() {
       return(
-          <div className="newPoll">
-              <h4> Add a new poll: </h4>
+          <div id="newpoll">
               <form className="reactForm">
-                  <input type="text" name="title" value={this.state.title} placeholder="Poll title" onInput={this.handleTitleChange.bind(this)} id="title"/>
-                  <input type="text" name="options" value={this.state.options} placeholder="Options, separated by comma's..." id="options" onChange={this.handleOptionsChange.bind(this)}/>
+                  <label for="title">Title</label>
+                  <input type="text" name="title" value={this.state.title} placeholder="Poll title" onChange={this.handleTitleChange.bind(this)} id="title"/>
+                  <label for="ptions">Options</label>
+                  <input type="text" name="options" value={this.state.options} placeholder="Enter options, separated by comma's..." id="options" onChange={this.handleOptionsChange.bind(this)}/>
                   <input type="button" value="Add Poll" onClick={this.handleSubmit.bind(this)}/>
               </form>
           </div>
@@ -53,7 +70,7 @@ class NewPoll extends React.Component {
 }
 
 NewPoll.contextTypes = {
-  router: React.PropTypes.func.isRequired
+  router: function() {return React.PropTypes.func.isRequired;}
 };
 
 module.exports = NewPoll;
