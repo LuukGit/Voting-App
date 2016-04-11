@@ -9,7 +9,7 @@ class Login extends React.Component {
             <img src="/client/img/GitHub-Mark-120px-plus.png" />
           </div>
           <div id="github-btn">
-            <a href="/auth/github/callback">
+            <a href="/auth/github">
               <div className="btn" id="login-btn">
                 <p>LOGIN WITH GITHUB</p>
               </div>
