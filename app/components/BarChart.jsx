@@ -53,8 +53,8 @@ class BarChart extends React.Component {
         .enter().append("rect")
           .attr("class", "bar")
           .attr("x", function(d) { return x(d.option); })
-          .attr("y", function(d) { return y(d.votes) - 5; })
-          .attr("height", function(d) { return height - y(d.votes) + 5 ; })
+          .attr("y", function(d) { return y(d.votes) ; })
+          .attr("height", function(d) { return height - y(d.votes)  ; })
           .attr("width", x.rangeBand());
     }
 

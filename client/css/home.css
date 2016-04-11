@@ -151,7 +151,7 @@ body {
   #poll #add-option-form {
     margin: 0 0 20px 20px; }
   #poll #poll-options {
-    margin: 0 auto 0 auto;
+    margin: 50px auto 10px auto;
     text-align: left; }
   #poll #poll-buttons {
     display: table;
