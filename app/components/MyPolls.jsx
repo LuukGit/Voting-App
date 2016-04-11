@@ -22,7 +22,7 @@ class MyPolls extends React.Component {
 
   render() {
       if (this.state.response) {
-        var polls = <p>You have no polls yet.<Link to="/newpoll">Click here to add a new Poll!</Link></p>;
+        var polls = <p>You have no polls yet.<br></br><Link to="/newpoll">Click here to add a new Poll!</Link></p>;
         if (this.state.polls.length > 0) {
           polls = this.state.polls.map(function(data) {
             var target = "/poll/" + data._id;

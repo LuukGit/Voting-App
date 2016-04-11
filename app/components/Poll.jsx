@@ -89,7 +89,7 @@ class Poll extends React.Component {
                 {options}
                   <label>
                   <input type="radio" name="option" id="addOption" onChange={this.handleOptionButton.bind(this)} value="addOption"></input>
-                  Other, 
+                  Add Option
                   </label>
               </form>
               {addOption}
