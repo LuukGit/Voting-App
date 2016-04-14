@@ -26,7 +26,7 @@ class MyPolls extends React.Component {
         if (this.state.polls.length > 0) {
           polls = this.state.polls.map(function(data) {
             var target = "/poll/" + data._id;
-            return <div className="poll" key={data._id}><Link to={target}><div className="link">{data.title}</div></Link></div>;
+            return <div className="poll" key={data._id}><Link to={target}><div className="link text-center">{data.title}</div></Link></div>;
           }.bind(this));
         }
 
